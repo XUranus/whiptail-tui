@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 from typing import Optional, Sequence, Type
+from collections import namedtuple
 import subprocess
 import shutil
 
@@ -19,6 +20,41 @@ whiptail_box_name_list = [
     'radiolist',
     'gauge'
 ]
+
+POSITIVE_RETURN_CODE : int = 0
+NEGATIVE_RETURN_CODE : int = 1
+ESC_RETURN_CODE      : int = 255
+
+class Response(namedtuple("__BaseResponse", "returncode value")):
+    """
+    Namedtuple to store the returncode and value returned by a whiptail dialog.
+
+    :param returncode: The returncode.
+    :param value: The value returned from the dialog.
+
+	Return values are as follows:
+    * ``0``: The ``Yes`` or ``OK`` button was pressed.
+    * ``1``: The ``No`` or ``Cancel`` button was pressed.
+    * ``255``: The user pressed the ``ESC`` key, or an error occurred.
+    """
+    returncode: int
+    value: str
+
+    __slots__ = ()
+
+    def __new__(cls, returncode: int, value: AnyStr):
+        """
+        Create a new instance of :class:`~.Response`.
+
+        :param returncode: The returncode.
+        :param value: The value returned from the dialog.
+        """
+        if isinstance(value, bytes):
+            val = value.decode("UTF-8")
+        else:
+            val = value
+        return super().__new__(cls, returncode, val)
+
 
 
 class WhiptailBase:
@@ -78,7 +114,8 @@ class WhiptailBase:
         self.text        : str           = text
         self.height      : int           = height
         self.width       : int           = width
-        
+        self.box_extra_args : Sequence[str] = ()
+        self.process = None
         if box not in whiptail_box_name_list:
             raise Exception("invalid whiptail box name: {}".format(box))
         if self.height is None:
@@ -103,6 +140,13 @@ class WhiptailBase:
         width -= 2
         hewidthight -= (width % 5)
         return width
+
+    def get_default_list_height(self) -> int:
+        """
+        Calculate default list height of dialog box.
+        Must be used after box height is initialized.
+        """
+        return self.height - 10
 
     def build_whiptail_args(self) -> list[str]:
         """
@@ -130,22 +174,22 @@ class WhiptailBase:
         if self.topleft:
             whiptail_args.append("--topleft")
         if self.default_item is not None:
-            whiptail_args.append("--default-item")
+            whiptail_args += ["--default-item", self.default_item]
         if self.yes_button is not None:
-            whiptail_args.append("--yes-button")
+            whiptail_args += ["--yes-button", self.yes_button]
         if self.no_button is not None:
-            whiptail_args.append("--no-button")
+            whiptail_args += ["--no-button", self.no_button]
         if self.ok_button is not None:
-            whiptail_args.append("--ok-button")
+            whiptail_args += ["--ok-button", self.ok_button]
         if self.cancel_button is not None:
-            whiptail_args.append("--cancel-button")
+            whiptail_args += ["--cancel-button", self.cancel_button]
         if self.title is not None:
-            whiptail_args.append("--title")
+            whiptail_args += ["--title", self.title]
         if self.backtitle is not None:
-            whiptail_args.append("--backtitle")
+            whiptail_args += ["--backtitle", self.backtitle]
         return whiptail_args
     
-    def run(self, box_extra_args : Sequence[str] = ()):
+    def run(self) -> Response:
         """
         box command all need text, height and width
         whiptail command can be split as: [TERM=ansi] whiptail [whiptail args...] --<box> <text> <height> <width> [box extra args...]
@@ -163,9 +207,50 @@ class WhiptailBase:
             str(self.text),
             str(self.height),
             str(self.width),
-            *list(box_extra_args)
+            *list(self.box_extra_args)
         ]
-        subprocess.run(cmd)
+        process = subprocess.Popen(cmd, stderr=subprocess.PIPE)
+        _, err = process.communicate()
+        print(cmd, err)
+        # err is the selected key str
+        return Response(process.returncode, err)
+
+    def show(self) -> Response:
+        """
+        run the command and trigger the corresponding event according to the response return code
+        """
+        response = self.run()
+        print(response)
+        if response.returncode == POSITIVE_RETURN_CODE:
+            self.on_positive_event_triggered(response.value)
+        elif response.returncode == NEGATIVE_RETURN_CODE:
+            self.on_negative_event_triggered()
+        elif response.returncode == ESC_RETURN_CODE:
+            self.on_esc_event_triggered()
+        else:
+            raise Exception(f"unexpected Response return code {response.returncode}")
+        return response
+
+    def on_positive_event_triggered(self, value : str) -> None:
+        """
+        subclass need to override this method if needed
+        """
+        raise Exception("on_positive_event_triggered not implemented!")
+        pass
+
+    def on_negative_event_triggered(self, value : str) -> None:
+        """
+        subclass need to override this method if needed
+        """
+        raise Exception("on_negative_event_triggered not implemented!")
+        pass
+
+    def on_esc_event_triggered(self, value : str) -> None:
+        """
+        subclass need to override this method if needed
+        """
+        raise Exception("on_esc_event_triggered not implemented!")
+        pass
     
     def set_clear_on_exit(self) -> Type[self]:
         self.clear_on_exit = True

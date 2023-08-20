@@ -20,8 +20,7 @@ import subprocess
 import shutil
 
 # third party
-from .whiptail_box import WhiptailMessageBox, WhiptailYesNo, WhiptailInfoBox, WhiptailInputBox
-from .whiptail_box import WhiptailTextBox, WhiptailMenuBox, WhiptailCheckListBox, WhiptailRadioListBox, WhiptailGaugeBox
+from .whiptail_box import *
 
 __author__: str = "XUranus"
 __copyright__: str = ""
