@@ -215,7 +215,6 @@ class WhiptailMenuBox(WhiptailBase):
                 item.on_selected(item.data)
                 return
         raise Exception(f"no items found! key = {value}")
-        pass
 
     def on_negative_event_triggered(self) -> None:
         """
@@ -473,6 +472,13 @@ class WhiptailFormBox(WhiptailBase):
         self.box_extra_args = [str(self.get_default_list_height())] + menu_item_args
 
     def refresh(self) -> None:
+        # refresh box extra args
+        menu_item_args = [(item.key, len(item.value) * '*' if item.password else item.value) \
+            for item in self.items]
+        menu_item_args = [(item[0], '{} {}'.format(self.prefix, item[1])) for item in menu_item_args]
+        menu_item_args.append(('', '[{}]'.format(self.submit_button)))
+        menu_item_args = list(itertools.chain.from_iterable(menu_item_args)) # flatten the list
+        self.box_extra_args = [str(self.get_default_list_height())] + menu_item_args
         self.show()
         pass
 
@@ -559,6 +565,4 @@ class WhiptailGaugeBox(WhiptailBase):
 
     def terminate(self) -> None:
         self.process.stdin.close()
-        if self.thread is not None:
-            self.thread.join()
 

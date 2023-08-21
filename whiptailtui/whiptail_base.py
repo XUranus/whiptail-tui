@@ -211,7 +211,6 @@ class WhiptailBase:
         ]
         process = subprocess.Popen(cmd, stderr=subprocess.PIPE)
         _, err = process.communicate()
-        print(cmd, err)
         # err is the selected key str
         return Response(process.returncode, err)
 
@@ -220,7 +219,6 @@ class WhiptailBase:
         run the command and trigger the corresponding event according to the response return code
         """
         response = self.run()
-        print(response)
         if response.returncode == POSITIVE_RETURN_CODE:
             self.on_positive_event_triggered(response.value)
         elif response.returncode == NEGATIVE_RETURN_CODE:

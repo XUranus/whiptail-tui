@@ -175,5 +175,5 @@ print(progress_bar)
 
 for percent in range(1, 101):
     progress_bar.update_percent(percent)
-    time.sleep(1)
+    time.sleep(0.02)
 progress_bar.terminate()
