@@ -33,9 +33,9 @@ class Response(namedtuple("__BaseResponse", "returncode value")):
     :param value: The value returned from the dialog.
 
 	Return values are as follows:
-    * ``0``: The ``Yes`` or ``OK`` button was pressed.
-    * ``1``: The ``No`` or ``Cancel`` button was pressed.
-    * ``255``: The user pressed the ``ESC`` key, or an error occurred.
+        * ``0``: The ``Yes`` or ``OK`` button was pressed.
+        * ``1``: The ``No`` or ``Cancel`` button was pressed.
+        * ``255``: The user pressed the ``ESC`` key, or an error occurred.
     """
     returncode: int
     value: str
@@ -60,6 +60,7 @@ class Response(namedtuple("__BaseResponse", "returncode value")):
 class WhiptailBase:
     """
     Manage common attribute of whiptail all type of whiptail box box.
+
     The attributes is corresponded to command options:
         clear_on_exit    <bool>              --clear                     clear screen on exit
         default_no       <bool>              --defaultno                 default no button
@@ -77,6 +78,7 @@ class WhiptailBase:
         backtitle        <Optional[str]>     --backtitle <text>          display backtitle
         scrolltext       <bool>              --scrolltext                force vertical scrollbars
         topleft          <bool>              --topleft                   put window in top-left corner
+
     Box command options:
         --msgbox <text> <height> <width>
         --yesno  <text> <height> <width>
@@ -278,7 +280,7 @@ class WhiptailBase:
         self.no_button = no_button
         return self
 
-    def set_(self, ok_button : str) -> Type[self]:
+    def set_ok_button(self, ok_button : str) -> Type[self]:
         self.ok_button = ok_button
         return self
 
@@ -302,7 +304,7 @@ class WhiptailBase:
         self.title = title
         return self
 
-    def set_(self, backtitle : str) -> Type[self]:
+    def set_backtitle(self, backtitle : str) -> Type[self]:
         self.backtitle = backtitle
         return self
 

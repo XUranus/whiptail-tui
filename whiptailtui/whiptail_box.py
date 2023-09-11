@@ -296,9 +296,10 @@ class WhiptailSelectItem:
 
     WhiptailSelectItem one of the members in a WhiptailCheckListBox or WhiptailRadioListBox, it can be displayed in the list and selected.
 
-    :param key: The text message to display. Key is also used to distinguish the item from other item, must be unique.
+    :param key: The text message to display. Key is also used to distinguish the item from other item,
+    must be unique.
     :param description : The menu item description followed by the ``key``,
-        only to be shown when WhiptailCheckListBox/WhiptailRadioListBox enable description.
+    only to be shown when WhiptailCheckListBox/WhiptailRadioListBox enable description.
     """
     def __init__(
         self,
@@ -444,6 +445,7 @@ class WhiptailFormBox(WhiptailBase):
     :param message: The message to display in the dialog box.
     :param items: A sequence of items to display in the radiolist.
     """
+    
     def __init__(
         self,
         message : str,
@@ -519,6 +521,7 @@ class WhiptailGaugeBox(WhiptailBase):
     """
     wrap the progress bar box base of whiptail gauge
     """
+    
     def __init__(self,
         message : str,
         height : Optional[int],

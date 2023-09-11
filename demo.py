@@ -10,8 +10,6 @@ WhiptailFormItem, WhiptailFormBox, WhiptailGaugeBox
 def validate_ip(ip : str):
     # Define a regular expression pattern for IP address validation
     pattern = r'^(\d{1,3}\.){3}\d{1,3}$'
-
-    # Use the re.match() function to check if the input matches the pattern
     if re.match(pattern, ip):
         # Split the IP address into its components
         octets = ip.split('.')
@@ -170,8 +168,6 @@ progress_bar = WhiptailGaugeBox(
     message = "progress bar",
     height = 10,
     width = 40).listen()
-
-print(progress_bar)
 
 for percent in range(1, 101):
     progress_bar.update_percent(percent)
